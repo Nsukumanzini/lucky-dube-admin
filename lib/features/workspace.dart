@@ -11,6 +11,9 @@ import '../data/schemas.dart';
 import '../app/localization/app_language.dart';
 import '../shared/components/admin_components.dart';
 import '../shared/components/learner_visuals.dart';
+import '../shared/components/admin_shell.dart';
+import '../shared/components/dashboard_components.dart';
+import 'dashboard/admin_dashboard.dart';
 
 class AdminLogin extends ConsumerStatefulWidget {
   const AdminLogin({super.key});
@@ -33,70 +36,134 @@ class _AdminLoginState extends ConsumerState<AdminLogin> {
   @override
   Widget build(BuildContext context) {
     final r = ref.watch(adminRepositoryProvider);
+    final signInPanel = Panel(
+        'Welcome to school administration',
+        Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          const LText('A clearer view of your school, together.'),
+          const SizedBox(height: 24),
+          TextField(
+              controller: number,
+              decoration: InputDecoration(
+                  labelText: tr(context, 'Administrator number'))),
+          const SizedBox(height: 16),
+          TextField(
+              controller: password,
+              obscureText: !show,
+              decoration: InputDecoration(
+                  labelText: tr(context, 'Password'),
+                  suffixIcon: IconButton(
+                      tooltip: tr(context, 'Show password'),
+                      onPressed: () => setState(() => show = !show),
+                      icon: Icon(show
+                          ? Icons.visibility_off
+                          : Icons.visibility_outlined)))),
+          CheckboxListTile(
+              contentPadding: EdgeInsets.zero,
+              value: remember,
+              onChanged: (v) => setState(() => remember = v!),
+              title: const LText('Remember me')),
+          if (error != null)
+            LText(error!, style: const TextStyle(color: Colors.red)),
+          FilledButton(
+              onPressed: () async {
+                final ok = await r.signIn(number.text, password.text, remember);
+                if (!ok && mounted) {
+                  setState(() =>
+                      error = 'Check your administrator number and password.');
+                }
+              },
+              child: const LText('Sign in')),
+          const SizedBox(height: 24),
+          const LText('Quick access: A1001 • Learn123!'),
+          const SizedBox(height: 16),
+          const LText(
+              'Administrator accounts are school-managed. Changes in this workspace are saved on this device only.',
+              style: TextStyle(fontSize: 12, height: 1.6)),
+          const SizedBox(height: 16),
+          const LText(LocalAdminRepository.owner,
+              style: TextStyle(fontSize: 11))
+        ]));
     return Scaffold(
-        appBar: AppBar(
-            title: const LText('Lucky Dube • Administration'),
-            actions: const [AdminLanguage()]),
-        body: Center(
-            child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
+      appBar: AppBar(
+          title: Row(children: [
+            Container(
+                width: 34,
+                height: 34,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                    color: blue, borderRadius: BorderRadius.circular(10)),
+                child: const Text('LD',
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800))),
+            const SizedBox(width: 10),
+            const Expanded(
+                child: LText('Lucky Dube • Administration',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style:
+                        TextStyle(fontSize: 15, fontWeight: FontWeight.w700)))
+          ]),
+          actions: const [AdminLanguage()]),
+      body: SafeArea(child: LayoutBuilder(builder: (context, box) {
+        final wide = box.maxWidth >= 1000;
+        final brand = Container(
+            padding: const EdgeInsets.all(42),
+            decoration: BoxDecoration(
+                color: const Color(0xffe9f1ff),
+                border: Border.all(color: const Color(0xffcfdef8)),
+                borderRadius: BorderRadius.circular(28)),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const LText('SCHOOL ADMINISTRATION',
+                  style: TextStyle(
+                      fontSize: 11,
+                      letterSpacing: 1.5,
+                      fontWeight: FontWeight.w800,
+                      color: blue)),
+              const SizedBox(height: 26),
+              const LText('A connected school.\nA clearer day.',
+                  style: TextStyle(
+                      fontSize: 42,
+                      fontWeight: FontWeight.w800,
+                      height: 1.15,
+                      color: ink)),
+              const SizedBox(height: 20),
+              const LText(
+                  'Support your people. Organise learning. Keep your school moving forward.',
+                  style: TextStyle(
+                      fontSize: 15, height: 1.8, color: Color(0xff526783))),
+              const SizedBox(height: 26),
+              const SizedBox(
+                  height: 200, child: Center(child: LearningIllustration())),
+              const SizedBox(height: 20),
+              const Wrap(spacing: 8, runSpacing: 8, children: [
+                StatusPill('People'),
+                StatusPill('Learning'),
+                StatusPill('School operations')
+              ]),
+            ]));
+        return SingleChildScrollView(
+            padding: EdgeInsets.all(wide ? 40 : 20),
+            child: Center(
                 child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 480),
-                    child: Panel(
-                        'Welcome to school administration',
-                        Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                    constraints: const BoxConstraints(maxWidth: 1160),
+                    child: wide
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              const LText(
-                                  'A clearer view of your school, together.'),
-                              const SizedBox(height: 24),
-                              TextField(
-                                  controller: number,
-                                  decoration: InputDecoration(
-                                      labelText:
-                                          tr(context, 'Administrator number'))),
-                              const SizedBox(height: 16),
-                              TextField(
-                                  controller: password,
-                                  obscureText: !show,
-                                  decoration: InputDecoration(
-                                      labelText: tr(context, 'Password'),
-                                      suffixIcon: IconButton(
-                                          tooltip: tr(context, 'Show password'),
-                                          onPressed: () =>
-                                              setState(() => show = !show),
-                                          icon: Icon(show
-                                              ? Icons.visibility_off
-                                              : Icons.visibility_outlined)))),
-                              CheckboxListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  value: remember,
-                                  onChanged: (v) =>
-                                      setState(() => remember = v!),
-                                  title: const LText('Remember me')),
-                              if (error != null)
-                                LText(error!,
-                                    style: const TextStyle(color: Colors.red)),
-                              FilledButton(
-                                  onPressed: () async {
-                                    final ok = await r.signIn(
-                                        number.text, password.text, remember);
-                                    if (!ok && mounted) {
-                                      setState(() => error =
-                                          'Check your administrator number and password.');
-                                    }
-                                  },
-                                  child: const LText('Sign in')),
-                              const SizedBox(height: 24),
-                              const LText('Quick access: A1001 • Learn123!'),
-                              const SizedBox(height: 16),
-                              const LText(
-                                  'Administrator accounts are school-managed. Changes in this workspace are saved on this device only.',
-                                  style: TextStyle(fontSize: 12, height: 1.6)),
-                              const SizedBox(height: 16),
-                              const LText(LocalAdminRepository.owner,
-                                  style: TextStyle(fontSize: 11))
-                            ]))))));
+                                Expanded(flex: 6, child: brand),
+                                const SizedBox(width: 48),
+                                Expanded(flex: 5, child: signInPanel)
+                              ])
+                        : ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 480),
+                            child: Padding(
+                                padding: const EdgeInsets.only(top: 24),
+                                child: signInPanel)))));
+      })),
+    );
   }
 }
 
@@ -141,15 +208,27 @@ class AdminWorkspace extends ConsumerStatefulWidget {
 }
 
 class _AdminWorkspaceState extends ConsumerState<AdminWorkspace> {
-  final shell = GlobalKey<ScaffoldState>();
+  int pageIndex = 0;
+  bool ascending = true;
   String query = '', filter = 'All', report = 'Enrolment';
   LocalAdminRepository get r => ref.read(adminRepositoryProvider);
   void go(String page) {
     setState(() {
       query = '';
       filter = 'All';
+      pageIndex = 0;
     });
     context.go('/$page');
+  }
+
+  @override
+  void didUpdateWidget(covariant AdminWorkspace oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.page != widget.page) {
+      query = '';
+      filter = 'All';
+      pageIndex = 0;
+    }
   }
 
   IconData icon(String page) =>
@@ -177,95 +256,13 @@ class _AdminWorkspaceState extends ConsumerState<AdminWorkspace> {
   Widget build(BuildContext context) {
     ref.watch(adminRepositoryProvider);
     if (!r.signedIn) return const SizedBox();
-    final wide = MediaQuery.sizeOf(context).width >= 1000;
-    Widget menu() => ListView(padding: const EdgeInsets.all(12), children: [
-          const Padding(
-              padding: EdgeInsets.all(16),
-              child: LText('SCHOOL WORKSPACE',
-                  style: TextStyle(fontSize: 10, letterSpacing: 1.5))),
-          for (final item in navigation.entries)
-            ListTile(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-                selected: widget.page == item.key,
-                selectedTileColor: const Color(0xffeaf3ff),
-                selectedColor: const Color(0xff2563eb),
-                leading: Icon(icon(item.key), size: 20),
-                title: LText(item.value, style: const TextStyle(fontSize: 13)),
-                onTap: () {
-                  if (!wide) Navigator.pop(context);
-                  go(item.key);
-                })
-        ]);
-    return Scaffold(
-        key: shell,
-        appBar: AppBar(
-            title: Row(children: [
-              const CircleAvatar(
-                  backgroundColor: Color(0xff2563eb),
-                  child: Text('LD',
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.w700))),
-              const SizedBox(width: 12),
-              Expanded(
-                  child: LText('${r.school['displayName']} • Administration',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                          fontSize: 17, fontWeight: FontWeight.w700)))
-            ]),
-            actions: const [AdminLanguage()]),
-        drawer: wide ? null : Drawer(child: SafeArea(child: menu())),
-        body: Row(children: [
-          if (wide) SizedBox(width: 230, child: menu()),
-          Expanded(
-              child:
-                  ListView(padding: EdgeInsets.all(wide ? 32 : 16), children: [
-            Center(
-                child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1200),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          content(),
-                          const SizedBox(height: 28),
-                          const LText(
-                              'Optimal Growth Technologies SA • Information is saved on this device. No changes are sent to school services or the other apps.',
-                              style: TextStyle(
-                                  fontSize: 11,
-                                  color: Color(0xff64748b),
-                                  height: 1.6))
-                        ])))
-          ]))
-        ]),
-        bottomNavigationBar: wide
-            ? null
-            : NavigationBar(
-                selectedIndex: ['home', 'learners', 'timetable', 'concerns']
-                        .contains(widget.page)
-                    ? ['home', 'learners', 'timetable', 'concerns']
-                        .indexOf(widget.page)
-                    : 4,
-                onDestinationSelected: (i) {
-                  if (i == 4) {
-                    shell.currentState!.openDrawer();
-                  } else {
-                    go(['home', 'learners', 'timetable', 'concerns'][i]);
-                  }
-                },
-                destinations: [
-                    for (final page in [
-                      'home',
-                      'learners',
-                      'timetable',
-                      'concerns',
-                      'more'
-                    ])
-                      NavigationDestination(
-                          icon: Icon(page == 'more' ? Icons.menu : icon(page)),
-                          label: tr(context,
-                              page == 'more' ? 'More' : navigation[page]!))
-                  ]));
+    return AdminShell(
+        page: widget.page,
+        navigation: navigation,
+        icon: icon,
+        navigate: go,
+        repository: r,
+        child: content());
   }
 
   Widget content() {
@@ -273,6 +270,8 @@ class _AdminWorkspaceState extends ConsumerState<AdminWorkspace> {
     switch (widget.page) {
       case 'home':
         return overview();
+      case 'search':
+        return workspaceSearch();
       case 'attendance':
         return attendance();
       case 'reports':
@@ -289,153 +288,347 @@ class _AdminWorkspaceState extends ConsumerState<AdminWorkspace> {
     }
   }
 
-  Widget overview() {
-    final cards = [
-      (
-        'Learners',
-        '${r.records(EntityKind.learner).where((l) => l['status'] == 'Active').length}',
-        'learners',
-        Icons.school_outlined
-      ),
-      (
-        'Staff',
-        '${r.records(EntityKind.staff).where((s) => s['status'] == 'Active').length}',
-        'staff',
-        Icons.badge_outlined
-      ),
-      (
-        'Classes',
-        '${r.records(EntityKind.schoolClass).length}',
-        'classes',
-        Icons.groups_outlined
-      ),
-      (
-        'Awaiting review',
-        '${r.records(EntityKind.result).where((x) => x['status'] == 'Pending review').length + r.records(EntityKind.resource).where((x) => x['status'] == 'Pending review').length}',
-        'results',
-        Icons.fact_check_outlined
-      )
-    ];
+  Widget overview() => AdminDashboard(repository: r, navigate: go);
+
+  Widget workspaceSearch() {
+    final needle = query.trim().toLowerCase();
+    final modules = navigation.entries
+        .where((e) =>
+            tr(context, e.value).toLowerCase().contains(needle) ||
+            e.value.toLowerCase().contains(needle))
+        .toList();
+    final records = needle.isEmpty
+        ? <AdminRecord>[]
+        : EntityKind.values
+            .expand((kind) => r.records(kind))
+            .where((x) => '${x.id} ${x.fields.values.join(' ')}'
+                .toLowerCase()
+                .contains(needle))
+            .toList();
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const PageHeading('Your school at a glance',
-          'Thursday, 26 November 2026 • Academic year 2026'),
-      WelcomeBanner(onContinue: () => go('school')),
-      const SizedBox(height: 20),
-      LayoutBuilder(
-          builder: (context, b) => Wrap(spacing: 12, runSpacing: 12, children: [
-                for (var i = 0; i < cards.length; i++)
-                  SizedBox(
-                      width: b.maxWidth < 650
-                          ? (b.maxWidth - 12) / 2
-                          : (b.maxWidth - 36) / 4,
-                      child: Card(
-                          child: InkWell(
-                              onTap: () => go(cards[i].$3),
-                              child: Padding(
-                                  padding: const EdgeInsets.all(20),
-                                  child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Icon(cards[i].$4,
-                                            color: learnerAccents[i]),
-                                        const SizedBox(height: 14),
-                                        LText(cards[i].$1,
-                                            style: const TextStyle(
-                                                fontSize: 12,
-                                                color: Color(0xff64748b))),
-                                        const SizedBox(height: 10),
-                                        Text(cards[i].$2,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headlineMedium
-                                                ?.copyWith(
-                                                    fontWeight:
-                                                        FontWeight.w800))
-                                      ])))))
-              ])),
-      const SizedBox(height: 22),
-      Panel(
-          'Today’s priorities',
-          Column(children: [
-            ActionTile(
-                'Review submitted results',
-                'Publish or hold with a review note',
-                Icons.fact_check_outlined,
-                () => go('results')),
-            ActionTile(
-                'Support cases',
-                '${r.records(EntityKind.concern).where((c) => c['status'] != 'Resolved').length} open cases',
-                Icons.health_and_safety_outlined,
-                () => go('concerns')),
-            ActionTile(
-                'Attendance overview',
-                '${r.attendanceRate('2026-11-26').toStringAsFixed(1)}% present, late or excused',
-                Icons.how_to_reg_outlined,
-                () => go('attendance'))
+      const PageHeading('Search workspace',
+          'Find management areas and school records in one place.'),
+      TextField(
+          autofocus: true,
+          decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.search),
+              hintText:
+                  tr(context, 'Search people, classes, notices and more')),
+          onChanged: (value) => setState(() => query = value)),
+      const SizedBox(height: 24),
+      DashboardPanel(
+          title: 'Management areas',
+          subtitle: 'Jump directly to a school workflow',
+          child: Wrap(spacing: 10, runSpacing: 10, children: [
+            for (final e in modules)
+              ActionChip(
+                  avatar: Icon(icon(e.key), size: 17),
+                  label: LText(e.value),
+                  onPressed: () => go(e.key))
           ])),
-      Panel(
-          'School activity',
-          Column(children: [
-            for (final event in r
-                .records(EntityKind.event)
-                .where((e) => e['status'] == 'Published'))
-              ActionTile(
-                  event['name'],
-                  '${event['date']} • ${event['time']} • ${event['venue']}',
-                  Icons.event,
-                  () => context.push('/record/event/${event.id}'))
-          ]))
+      if (needle.isNotEmpty) ...[
+        const SizedBox(height: 18),
+        DashboardPanel(
+            title: 'School records',
+            subtitle: '${records.length} matching records',
+            child: Column(children: [
+              if (records.isEmpty)
+                const EmptyPanel('No matching records',
+                    'Try a different search or create a record.'),
+              for (final item in records.take(40))
+                ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.description_outlined,
+                        size: 20, color: blue),
+                    title: Text(item['name'],
+                        style: const TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w700)),
+                    subtitle: LText('${labels[item.kind]} • ${item.id}',
+                        style: const TextStyle(fontSize: 11, color: muted)),
+                    trailing: const Icon(Icons.chevron_right, size: 18),
+                    onTap: () => context.push(
+                        '/record/${item.kind.name}/${Uri.encodeComponent(item.id)}')),
+              if (records.length > 40)
+                const LText('Refine your search to see more specific results.',
+                    style: TextStyle(fontSize: 12, color: muted)),
+            ])),
+      ],
     ]);
   }
 
   Widget registry(EntityKind kind) {
     final all = r.records(kind, includeArchived: true);
-    final visible = all.where((record) =>
-        (filter == 'All' ? record.active : record['status'] == filter) &&
-        ('${record.id} ${record['name']} ${record.fields.values.join(' ')}')
-            .toLowerCase()
-            .contains(query));
+    final visible = all
+        .where((record) =>
+            (filter == 'All' ? record.active : record['status'] == filter) &&
+            ('${record.id} ${record['name']} ${record.fields.values.join(' ')}')
+                .toLowerCase()
+                .contains(query.toLowerCase()))
+        .toList()
+      ..sort((a, b) => ascending
+          ? a['name'].compareTo(b['name'])
+          : b['name'].compareTo(a['name']));
     final statuses = [
       'All',
       ...all.map((r) => r['status']).where((s) => s.isNotEmpty).toSet()
     ];
+    final pages = (visible.length / 8).ceil().clamp(1, 99999);
+    final current = pageIndex.clamp(0, pages - 1);
+    final displayed = visible.skip(current * 8).take(8).toList();
+    final columns = switch (kind) {
+      EntityKind.learner => ('Class', 'Grade'),
+      EntityKind.staff => ('Speciality', 'Contact email'),
+      EntityKind.schoolClass => ('Grade', 'Classroom'),
+      EntityKind.subject => ('Enabled grades', 'Subject'),
+      EntityKind.allocation => ('Teacher', 'Class'),
+      EntityKind.timetable => ('Day', 'Time'),
+      EntityKind.result => ('Learner', 'Mark obtained'),
+      EntityKind.resource => ('Teacher', 'Class'),
+      EntityKind.announcement => ('Audience', 'Priority'),
+      EntityKind.event => ('Date', 'Venue'),
+      EntityKind.concern => ('Assigned staff', 'Category'),
+      EntityKind.term => ('Start date', 'End date'),
+    };
+    (String, String) values(AdminRecord x) => switch (kind) {
+          EntityKind.learner => (x['classId'], x['grade']),
+          EntityKind.staff => (x['speciality'], x['email']),
+          EntityKind.schoolClass => (x['grade'], x['room']),
+          EntityKind.subject => (x['grades'], x['name']),
+          EntityKind.allocation => (
+              r.label(EntityKind.staff, x['teacherId']),
+              x['classId']
+            ),
+          EntityKind.timetable => (x['day'], '${x['start']}–${x['end']}'),
+          EntityKind.result => (
+              r.label(EntityKind.learner, x['learnerId']),
+              '${x['mark']}/${x['maxMarks']}'
+            ),
+          EntityKind.resource => (
+              r.label(EntityKind.staff, x['teacherId']),
+              x['classId']
+            ),
+          EntityKind.announcement => (x['audience'], x['priority']),
+          EntityKind.event => (x['date'], x['venue']),
+          EntityKind.concern => (
+              r.label(EntityKind.staff, x['assignedTo']),
+              x['category']
+            ),
+          EntityKind.term => (x['start'], x['end']),
+        };
+    void open(AdminRecord record) =>
+        context.push('/record/${kind.name}/${Uri.encodeComponent(record.id)}');
+    Widget identity(AdminRecord x) => Row(children: [
+          Container(
+              width: 34,
+              height: 34,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                  color: const Color(0xffedf3ff),
+                  borderRadius: BorderRadius.circular(10)),
+              child: Icon(icon(widget.page), size: 18, color: blue)),
+          const SizedBox(width: 12),
+          Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                Text(x['name'],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 4),
+                Text(x.id, style: const TextStyle(color: muted, fontSize: 10))
+              ])),
+        ]);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      PageHeading(labels[kind]!,
-          'Manage school records with clear ownership and a local activity trail'),
-      if (![EntityKind.result, EntityKind.resource].contains(kind))
-        FilledButton.icon(
-            onPressed: () => context.push('/new/${kind.name}'),
-            icon: const Icon(Icons.add),
-            label: const LText('Create record')),
+      Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Expanded(
+            child: PageHeading(labels[kind]!,
+                'Manage school records with clear ownership and a local activity trail'))
+      ]),
+      Wrap(spacing: 10, runSpacing: 10, children: [
+        StatusPill('${all.where((x) => x.active).length} records'),
+        if (![EntityKind.result, EntityKind.resource].contains(kind))
+          FilledButton.icon(
+              onPressed: () => context.push('/new/${kind.name}'),
+              icon: const Icon(Icons.add, size: 18),
+              label: const LText('Create record')),
+      ]),
       const SizedBox(height: 20),
-      TextField(
-          decoration: InputDecoration(
-              prefixIcon: const Icon(Icons.search),
-              hintText: tr(context, 'Search records')),
-          onChanged: (v) => setState(() => query = v.toLowerCase())),
-      const SizedBox(height: 14),
-      Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: statuses
-              .map((status) => ChoiceChip(
-                  label: LText(status),
-                  selected: filter == status,
-                  onSelected: (_) => setState(() => filter = status)))
-              .toList()),
-      const SizedBox(height: 20),
-      if (visible.isEmpty)
-        const Panel('No matching records',
-            LText('Try a different search or create a record.')),
-      for (final record in visible)
-        Card(
-            child: ActionTile(
-                record['name'],
-                '${record.id} • ${record['status']}${kind == EntityKind.learner ? ' • ${record['classId']}' : ''}${kind == EntityKind.timetable ? ' • ${record['day']} ${record['start']}–${record['end']}' : ''}',
-                icon(widget.page),
-                () => context.push(
-                    '/record/${kind.name}/${Uri.encodeComponent(record.id)}')))
+      DashboardPanel(
+          title: 'Record directory',
+          subtitle: 'Search, filter and open a record to manage its details.',
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            TextField(
+                key: ValueKey(widget.page),
+                decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search, size: 20),
+                    hintText: tr(context, 'Search records')),
+                onChanged: (v) => setState(() {
+                      query = v;
+                      pageIndex = 0;
+                    })),
+            const SizedBox(height: 16),
+            Wrap(spacing: 7, runSpacing: 8, children: [
+              for (final status in statuses)
+                ChoiceChip(
+                    label: LText(status),
+                    selected: filter == status,
+                    onSelected: (_) => setState(() {
+                          filter = status;
+                          pageIndex = 0;
+                        })),
+              OutlinedButton.icon(
+                  onPressed: () => setState(() {
+                        ascending = !ascending;
+                        pageIndex = 0;
+                      }),
+                  icon: Icon(
+                      ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                      size: 16),
+                  label: LText(ascending ? 'Name A–Z' : 'Name Z–A',
+                      style: const TextStyle(fontSize: 11)))
+            ]),
+            const SizedBox(height: 18),
+            if (displayed.isEmpty)
+              const EmptyPanel('No matching records',
+                  'Try a different search or create a record.'),
+            if (displayed.isNotEmpty)
+              LayoutBuilder(builder: (context, box) {
+                if (box.maxWidth < 650) {
+                  return Column(children: [
+                    for (final x in displayed)
+                      Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          decoration: BoxDecoration(
+                              border: Border.all(color: line),
+                              borderRadius: BorderRadius.circular(12)),
+                          child: InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              onTap: () => open(x),
+                              child: Padding(
+                                  padding: const EdgeInsets.all(14),
+                                  child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        identity(x),
+                                        const SizedBox(height: 14),
+                                        LText(
+                                            '${columns.$1}: ${values(x).$1.isEmpty ? '—' : values(x).$1}',
+                                            style: const TextStyle(
+                                                fontSize: 11, color: muted)),
+                                        const SizedBox(height: 10),
+                                        Row(children: [
+                                          Flexible(
+                                              child: StatusPill(x['status'])),
+                                          const Spacer(),
+                                          const Icon(Icons.arrow_forward,
+                                              color: blue, size: 18)
+                                        ])
+                                      ]))))
+                  ]);
+                }
+                return Column(children: [
+                  Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 13, horizontal: 12),
+                      decoration: const BoxDecoration(
+                          color: Color(0xfff7f9fc),
+                          border: Border(bottom: BorderSide(color: line))),
+                      child: Row(children: [
+                        for (final col in [
+                          ('Record', 5),
+                          (columns.$1, 3),
+                          (columns.$2, 2),
+                          ('Status', 3)
+                        ])
+                          Expanded(
+                              flex: col.$2,
+                              child: LText(col.$1,
+                                  style: const TextStyle(
+                                      fontSize: 10,
+                                      color: muted,
+                                      fontWeight: FontWeight.w700))),
+                        const SizedBox(width: 32)
+                      ])),
+                  for (final x in displayed)
+                    Container(
+                        decoration: const BoxDecoration(
+                            border: Border(
+                                bottom: BorderSide(color: Color(0xffedf1f6)))),
+                        child: InkWell(
+                            onTap: () => open(x),
+                            child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 16),
+                                child: Row(children: [
+                                  Expanded(flex: 5, child: identity(x)),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                      flex: 3,
+                                      child: Text(
+                                          values(x).$1.isEmpty
+                                              ? '—'
+                                              : values(x).$1,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                              fontSize: 11, color: muted))),
+                                  Expanded(
+                                      flex: 2,
+                                      child: Text(
+                                          values(x).$2.isEmpty
+                                              ? '—'
+                                              : values(x).$2,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                              fontSize: 11, color: muted))),
+                                  Expanded(
+                                      flex: 3,
+                                      child: Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: StatusPill(x['status']))),
+                                  const SizedBox(
+                                      width: 32,
+                                      child: Icon(Icons.chevron_right,
+                                          size: 18, color: blue)),
+                                ])))),
+                ]);
+              }),
+            const SizedBox(height: 16),
+            Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 16,
+                runSpacing: 12,
+                children: [
+                  LText(
+                      '${visible.isEmpty ? 0 : current * 8 + 1}–${(current * 8 + displayed.length)} of ${visible.length} records',
+                      style: const TextStyle(fontSize: 11, color: muted)),
+                  Row(mainAxisSize: MainAxisSize.min, children: [
+                    IconButton.outlined(
+                        tooltip: tr(context, 'Previous page'),
+                        onPressed: current == 0
+                            ? null
+                            : () => setState(() => pageIndex = current - 1),
+                        icon: const Icon(Icons.chevron_left, size: 18)),
+                    Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text('${current + 1} / $pages',
+                            style:
+                                const TextStyle(fontSize: 11, color: muted))),
+                    IconButton.outlined(
+                        tooltip: tr(context, 'Next page'),
+                        onPressed: current + 1 >= pages
+                            ? null
+                            : () => setState(() => pageIndex = current + 1),
+                        icon: const Icon(Icons.chevron_right, size: 18))
+                  ]),
+                ]),
+          ])),
     ]);
   }
 

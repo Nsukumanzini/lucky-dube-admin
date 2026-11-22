@@ -29,6 +29,10 @@ python3 -m http.server 8080 --directory build/web
 
 The web release bundles fonts, icons, original illustrations, application translations and rendering assets. Application operations use local data only. A hosted app needs an initial load; offline reload after closing the browser is not guaranteed because no service-worker installation is claimed. No API keys, Firebase, Supabase or external application APIs are used.
 
+## Dashboard design
+
+The professional dashboard adapts the grouped navigation, metric cards, management tables and activity panels from the owner’s [OG Vibes admin source](https://github.com/Nsukumanzini/og-vibes-admin). It adds workspace-wide search, sorted and paginated directories, attendance bars, a review queue, and a school agenda while retaining the local school workflows. See `docs/DESIGN_SOURCE.md` for the source-to-implementation mapping.
+
 ## Implemented workflows
 
 - School overview: calculated enrolment/staff/class counts, pending reviews and attendance summary.

@@ -92,8 +92,8 @@ class Panel extends StatelessWidget {
             LText(title,
                 style: Theme.of(context)
                     .textTheme
-                    .titleLarge
-                    ?.copyWith(fontWeight: FontWeight.w700)),
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w800)),
             const SizedBox(height: 16),
             child
           ])));
@@ -107,10 +107,10 @@ class PageHeading extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 24),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         LText(title,
-            style: Theme.of(context)
-                .textTheme
-                .headlineMedium
-                ?.copyWith(fontWeight: FontWeight.w800)),
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: const Color(0xff17233a),
+                letterSpacing: -.7)),
         const SizedBox(height: 8),
         LText(subtitle,
             style: const TextStyle(color: Color(0xff64748b), height: 1.5))
