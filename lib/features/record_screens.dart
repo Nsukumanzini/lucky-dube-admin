@@ -7,6 +7,7 @@ import '../data/admin_repository.dart';
 import '../data/schemas.dart';
 import '../app/localization/app_language.dart';
 import '../shared/components/admin_components.dart';
+import '../shared/components/premium_surface.dart';
 
 EntityKind? parseKind(String value) {
   final found = EntityKind.values.where((k) => k.name == value);
@@ -516,7 +517,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               label: Text(date)),
           const SizedBox(height: 20),
           for (final learner in r.roster(widget.classId))
-            Card(
+            LiquidGlassSurface(
+                padding: EdgeInsets.zero,
                 child: Padding(
                     padding: const EdgeInsets.all(14),
                     child: Row(children: [

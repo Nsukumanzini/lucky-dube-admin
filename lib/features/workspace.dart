@@ -13,6 +13,7 @@ import '../shared/components/admin_components.dart';
 import '../shared/components/learner_visuals.dart';
 import '../shared/components/admin_shell.dart';
 import '../shared/components/dashboard_components.dart';
+import '../shared/components/premium_surface.dart';
 import 'dashboard/admin_dashboard.dart';
 
 class AdminLogin extends ConsumerStatefulWidget {
@@ -85,6 +86,7 @@ class _AdminLoginState extends ConsumerState<AdminLogin> {
         ]));
     return Scaffold(
       appBar: AppBar(
+          flexibleSpace: const LiquidGlassBar(),
           title: Row(children: [
             Container(
                 width: 34,
@@ -641,7 +643,8 @@ class _AdminWorkspaceState extends ConsumerState<AdminWorkspace> {
             LText(
                 '${r.attendanceRate('2026-11-26').toStringAsFixed(1)}% attendance')),
         for (final c in r.records(EntityKind.schoolClass))
-          Card(
+          LiquidGlassSurface(
+              padding: EdgeInsets.zero,
               child: ActionTile(
                   c['name'],
                   '${r.roster(c.id).length} active learners • ${r.attendance(c.id, '2026-11-26').values.where((s) => s == 'Absent').length} absent',
@@ -690,7 +693,8 @@ class _AdminWorkspaceState extends ConsumerState<AdminWorkspace> {
             LText(
                 'Saved changes will appear here with an actor and timestamp.')),
       for (final entry in log)
-        Card(
+        LiquidGlassSurface(
+            padding: EdgeInsets.zero,
             child: ListTile(
                 leading: const Icon(Icons.history, color: Color(0xff2563eb)),
                 title: LText(entry['action']),
@@ -836,7 +840,8 @@ class _SchoolSettingsState extends ConsumerState<SchoolSettings> {
       const SizedBox(height: 20),
       for (final term
           in ref.watch(adminRepositoryProvider).records(EntityKind.term))
-        Card(
+        LiquidGlassSurface(
+            padding: EdgeInsets.zero,
             child: ActionTile(
                 term['name'],
                 '${term['start']} — ${term['end']}',

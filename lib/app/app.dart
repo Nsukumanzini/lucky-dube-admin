@@ -7,6 +7,7 @@ import '../main.dart';
 import '../features/workspace.dart';
 import '../features/record_screens.dart';
 import 'localization/app_language.dart';
+import '../shared/components/premium_surface.dart';
 
 class AdminApp extends ConsumerStatefulWidget {
   const AdminApp({super.key});
@@ -75,16 +76,16 @@ class _AdminAppState extends ConsumerState<AdminApp> {
                   primary: const Color(0xff2869f0),
                   surface: Colors.white,
                   onSurface: const Color(0xff17233a)),
-          scaffoldBackgroundColor: const Color(0xfff2f5fa),
+          scaffoldBackgroundColor: Colors.transparent,
           appBarTheme: const AppBarTheme(
-              backgroundColor: Colors.white,
-              scrolledUnderElevation: 0,
-              shape: Border(bottom: BorderSide(color: Color(0xffdce5ef)))),
+              backgroundColor: Colors.transparent,
+              surfaceTintColor: Colors.transparent,
+              scrolledUnderElevation: 0),
           dividerTheme:
               const DividerThemeData(color: Color(0xffe5ebf3), thickness: 1),
           cardTheme: CardThemeData(
               elevation: 0,
-              color: Colors.white,
+              color: const Color(0xd8ffffff),
               margin: const EdgeInsets.only(bottom: 12),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18),
@@ -104,7 +105,7 @@ class _AdminAppState extends ConsumerState<AdminApp> {
                       borderRadius: BorderRadius.circular(11)))),
           chipTheme: ChipThemeData(
               side: const BorderSide(color: Color(0xffdce5ef)),
-              backgroundColor: Colors.white,
+              backgroundColor: Colors.transparent,
               selectedColor: const Color(0xffe8f0ff),
               labelStyle: const TextStyle(fontSize: 11),
               shape: RoundedRectangleBorder(
@@ -115,7 +116,7 @@ class _AdminAppState extends ConsumerState<AdminApp> {
               labelTextStyle: WidgetStatePropertyAll(TextStyle(fontSize: 10))),
           inputDecorationTheme: InputDecorationTheme(
               filled: true,
-              fillColor: const Color(0xfff9fbfd),
+              fillColor: const Color(0xc9ffffff),
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 15, vertical: 16),
               border: OutlineInputBorder(
@@ -125,10 +126,14 @@ class _AdminAppState extends ConsumerState<AdminApp> {
                   borderRadius: BorderRadius.circular(11),
                   borderSide: const BorderSide(color: Color(0xffd9e2ed)))),
         ),
-        builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-                textScaler: TextScaler.linear(
-                    (r.state['textScale'] as num?)?.toDouble() ?? 1)),
-            child: child!));
+        builder: (context, child) => BackdropGroup(
+                child: Stack(fit: StackFit.expand, children: [
+              const Positioned.fill(child: LiquidGlassBackdrop(dark: false)),
+              MediaQuery(
+                  data: MediaQuery.of(context).copyWith(
+                      textScaler: TextScaler.linear(
+                          (r.state['textScale'] as num?)?.toDouble() ?? 1)),
+                  child: child!)
+            ])));
   }
 }

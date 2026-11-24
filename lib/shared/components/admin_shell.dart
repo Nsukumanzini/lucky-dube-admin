@@ -4,6 +4,7 @@ import '../../app/localization/app_language.dart';
 import '../../data/admin_repository.dart';
 import 'admin_components.dart';
 import 'dashboard_components.dart';
+import 'premium_surface.dart';
 
 /// Adapts OG Vibes' grouped sidebar, account footer and breadcrumb topbar.
 class AdminShell extends StatefulWidget {
@@ -52,8 +53,10 @@ class _AdminShellState extends State<AdminShell> {
       'SCHOOL COMMUNITY': ['announcements', 'calendar', 'concerns'],
       'OPERATIONS': ['reports', 'audit', 'school', 'settings'],
     };
-    Widget menu() => Material(
-        color: Colors.white,
+    Widget menu() => LiquidGlassSurface(
+        padding: EdgeInsets.zero,
+        borderRadius: BorderRadius.zero,
+        blur: 20,
         child: Column(children: [
           Padding(
               padding: const EdgeInsets.fromLTRB(20, 22, 16, 18),
@@ -174,12 +177,12 @@ class _AdminShellState extends State<AdminShell> {
                         style: TextStyle(fontSize: 11))),
               ])),
         ]));
-    Widget topbar() => Container(
+    Widget topbar() => LiquidGlassSurface(
+        width: double.infinity,
         height: 72,
         padding: EdgeInsets.symmetric(horizontal: wide ? 28 : 8),
-        decoration: const BoxDecoration(
-            color: Colors.white,
-            border: Border(bottom: BorderSide(color: line))),
+        borderRadius: BorderRadius.zero,
+        blur: 22,
         child: Row(children: [
           if (!wide)
             IconButton(
@@ -233,15 +236,22 @@ class _AdminShellState extends State<AdminShell> {
         ]));
     return Scaffold(
         key: shell,
-        drawer:
-            wide ? null : Drawer(width: 280, child: SafeArea(child: menu())),
+        drawer: wide
+            ? null
+            : Drawer(
+                width: 280,
+                backgroundColor: Colors.transparent,
+                surfaceTintColor: Colors.transparent,
+                child: SafeArea(child: menu())),
         body: SafeArea(
             child: Row(children: [
           if (wide)
             Container(
                 width: 248,
-                decoration: const BoxDecoration(
-                    border: Border(right: BorderSide(color: line))),
+                decoration: BoxDecoration(
+                    color: const Color(0x12ffffff),
+                    border: Border(
+                        right: BorderSide(color: line.withValues(alpha: .6)))),
                 child: menu()),
           Expanded(
               child: Column(children: [
@@ -272,31 +282,36 @@ class _AdminShellState extends State<AdminShell> {
         ])),
         bottomNavigationBar: wide
             ? null
-            : NavigationBar(
-                selectedIndex:
-                    ['home', 'learners', 'timetable', 'concerns'].contains(page)
+            : LiquidGlassSurface(
+                padding: EdgeInsets.zero,
+                borderRadius: BorderRadius.zero,
+                blur: 22,
+                child: NavigationBar(
+                    selectedIndex: ['home', 'learners', 'timetable', 'concerns']
+                            .contains(page)
                         ? ['home', 'learners', 'timetable', 'concerns']
                             .indexOf(page)
                         : 4,
-                onDestinationSelected: (i) {
-                  if (i == 4) {
-                    shell.currentState!.openDrawer();
-                  } else {
-                    navigate(['home', 'learners', 'timetable', 'concerns'][i]);
-                  }
-                },
-                destinations: [
-                    for (final key in [
-                      'home',
-                      'learners',
-                      'timetable',
-                      'concerns',
-                      'more'
-                    ])
-                      NavigationDestination(
-                          icon: Icon(key == 'more' ? Icons.menu : icon(key)),
-                          label: tr(context,
-                              key == 'more' ? 'More' : navigation[key]!))
-                  ]));
+                    onDestinationSelected: (i) {
+                      if (i == 4) {
+                        shell.currentState!.openDrawer();
+                      } else {
+                        navigate(
+                            ['home', 'learners', 'timetable', 'concerns'][i]);
+                      }
+                    },
+                    destinations: [
+                      for (final key in [
+                        'home',
+                        'learners',
+                        'timetable',
+                        'concerns',
+                        'more'
+                      ])
+                        NavigationDestination(
+                            icon: Icon(key == 'more' ? Icons.menu : icon(key)),
+                            label: tr(context,
+                                key == 'more' ? 'More' : navigation[key]!))
+                    ])));
   }
 }
